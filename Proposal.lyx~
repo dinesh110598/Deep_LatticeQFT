@@ -29,7 +29,17 @@
 \bibtex_command default
 \index_command default
 \paperfontsize default
-\use_hyperref false
+\spacing single
+\use_hyperref true
+\pdf_bookmarks true
+\pdf_bookmarksnumbered false
+\pdf_bookmarksopen false
+\pdf_bookmarksopenlevel 1
+\pdf_breaklinks false
+\pdf_pdfborder false
+\pdf_colorlinks false
+\pdf_backref false
+\pdf_pdfusetitle true
 \papersize default
 \use_geometry false
 \use_package amsmath 1
@@ -42,8 +52,10 @@
 \use_package stackrel 1
 \use_package stmaryrd 1
 \use_package undertilde 1
-\cite_engine basic
-\cite_engine_type default
+\cite_engine biblatex
+\cite_engine_type authoryear
+\biblatex_bibstyle numeric
+\biblatex_citestyle numeric
 \use_bibtopic false
 \use_indices false
 \paperorientation portrait
@@ -612,16 +624,23 @@ B_{\bm{x}}(y_{1},\dots y_{d-1}) & =\begin{cases}
 
 \end_inset
 
-What if there are second nearest neighbour interactions? The dependency
- set would be simply expanded to another 
+What if we have second nearest neighbour interactions? The dependency set
+ would be simply expanded to another 
 \begin_inset Formula $d-1$
 \end_inset
 
- dimensional box above the given 
+ dimensional box above the 
 \begin_inset Formula $B_{x}$
 \end_inset
 
-.
+ for nearest neighbour.
+ A 
+\emph on
+local
+\emph default
+ action principle (or nothing spooky at a distance) is a fundamental property
+ of literally anything in physics so this mathematical result should be
+ equally useful for more complex lattice field theories as well.
 \end_layout
 
 \begin_layout Section
@@ -672,7 +691,17 @@ which is flexible, as well as easy to sample from.
 \begin_inset Formula $L$
 \end_inset
 
- can be reused to sample a larger lattice.
+ can be reused to sample a larger lattice- which should be crucial for lattice
+ field theories where the cost of simulating systems typically scale with
+ the system size.
+ Since the translational invariance is only approximate, we should expect
+ errors to increase when we do an extrapolation to large 
+\begin_inset Formula $L$
+\end_inset
+
+.
+ It will be interesting to see if we can engineer the model architecture
+ or the input data to address such sources of error.
  The log likelihood at every position can be accumulated and optimized using
  the REINFORCE estimator of the KL divergence between the ansatz and the
  unnormalized Boltzmann distribution (see 
@@ -768,6 +797,35 @@ literal "false"
 , it's sufficient to use 3D convolutional layers that have optimized GPU
  implementations in the CUDA stack or popular deep learning frameworks like
  PyTorch or Tensorflow- the same are typically absent for 4D convolutions.
+ In a nutshell (and best of my perception), the compact autoregressive network
+ proposed here would be to 
+\begin_inset Quotes eld
+\end_inset
+
+local action principle
+\begin_inset Quotes erd
+\end_inset
+
+ what convolutional neural networks is to 
+\begin_inset Quotes eld
+\end_inset
+
+translationally invariant data
+\begin_inset Quotes erd
+\end_inset
+
+.
+ In more general terms, lower-sized inputs helped tackle the curse of dimensiona
+lity in gradient-based models and persuits for them have yielded successful
+ architectures in the Geometric Deep Learning framework
+\begin_inset CommandInset citation
+LatexCommand cite
+key "bronstein2017geometric"
+literal "false"
+
+\end_inset
+
+
 \end_layout
 
 \begin_layout Standard
@@ -775,7 +833,7 @@ literal "false"
 LatexCommand bibtex
 btprint "btPrintCited"
 bibfiles "ref"
-options "plain"
+options "biblatex"
 
 \end_inset
 
