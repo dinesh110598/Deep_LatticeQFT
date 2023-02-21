@@ -1,0 +1,1 @@
+- We only care about temperatures around the critical point for the Ising model at least. We have 4 parameters to play with: l, filter_w, depth and width.

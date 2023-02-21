@@ -1,0 +1,985 @@
+#LyX 2.3 created this file. For more info see http://www.lyx.org/
+\lyxformat 544
+\begin_document
+\begin_header
+\save_transient_properties true
+\origin unavailable
+\textclass article
+\use_default_options true
+\maintain_unincluded_children false
+\language english
+\language_package default
+\inputencoding auto
+\fontencoding global
+\font_roman "default" "default"
+\font_sans "default" "default"
+\font_typewriter "default" "default"
+\font_math "auto" "auto"
+\font_default_family default
+\use_non_tex_fonts false
+\font_sc false
+\font_osf false
+\font_sf_scale 100 100
+\font_tt_scale 100 100
+\use_microtype false
+\use_dash_ligatures true
+\graphics default
+\default_output_format default
+\output_sync 0
+\bibtex_command default
+\index_command default
+\paperfontsize default
+\spacing single
+\use_hyperref true
+\pdf_bookmarks true
+\pdf_bookmarksnumbered false
+\pdf_bookmarksopen false
+\pdf_bookmarksopenlevel 1
+\pdf_breaklinks false
+\pdf_pdfborder false
+\pdf_colorlinks false
+\pdf_backref false
+\pdf_pdfusetitle true
+\papersize default
+\use_geometry false
+\use_package amsmath 1
+\use_package amssymb 1
+\use_package cancel 1
+\use_package esint 1
+\use_package mathdots 1
+\use_package mathtools 1
+\use_package mhchem 1
+\use_package stackrel 1
+\use_package stmaryrd 1
+\use_package undertilde 1
+\cite_engine basic
+\cite_engine_type default
+\biblio_style plain
+\use_bibtopic false
+\use_indices false
+\paperorientation portrait
+\suppress_date false
+\justification true
+\use_refstyle 0
+\use_minted 0
+\index Index
+\shortcut idx
+\color #008000
+\end_index
+\secnumdepth 3
+\tocdepth 3
+\paragraph_separation indent
+\paragraph_indentation default
+\is_math_indent 0
+\math_numbering_side default
+\quotes_style english
+\dynamic_quotes 0
+\papercolumns 1
+\papersides 1
+\paperpagestyle default
+\tracking_changes false
+\output_changes false
+\html_math_output 0
+\html_css_as_file 0
+\html_be_strict false
+\end_header
+
+\begin_body
+
+\begin_layout Title
+Autoregressive networks based on d-1 dimensional convolutions for lattice
+ field theory
+\end_layout
+
+\begin_layout Section
+Markov Chain Monte Carlo algorithm based on autoregressive networks
+\end_layout
+
+\begin_layout Subsection
+The autoregressive relation and systems with nearest neighbour interactions
+\end_layout
+
+\begin_layout Standard
+Our system of interest is a lattice field of scalar values 
+\begin_inset Formula $\phi$
+\end_inset
+
+ at every position 
+\begin_inset Formula $\bm{x}$
+\end_inset
+
+ in a 
+\begin_inset Formula $d$
+\end_inset
+
+-dimensional box of length 
+\begin_inset Formula $L$
+\end_inset
+
+, so that 
+\begin_inset Formula $\bm{x}\in[1,L]^{d}$
+\end_inset
+
+.
+ We assume open boundary conditions so 
+\begin_inset Formula $x_{\mu}<1$
+\end_inset
+
+ or 
+\begin_inset Formula $x_{\mu}>L$
+\end_inset
+
+ do not exist for any component 
+\begin_inset Formula $\mu$
+\end_inset
+
+ of 
+\begin_inset Formula $\bm{x}$
+\end_inset
+
+.
+ The lattice field configurations are distributed according to the 
+\emph on
+Boltzmann distribution
+\emph default
+:
+\begin_inset Formula 
+\begin{equation}
+p\left(\{\phi(\bm{x})\}_{\bm{x}\in[1,L]^{d}}\right)=e^{-S[\phi]}/Z\label{eq:boltzmann}
+\end{equation}
+
+\end_inset
+
+where 
+\begin_inset Formula $S[\phi]$
+\end_inset
+
+ is a functional over the field 
+\begin_inset Formula $\phi$
+\end_inset
+
+ and 
+\begin_inset Formula $Z$
+\end_inset
+
+ is the normalizing constant sometimes known as partition function.
+ Instead of using lattice vector 
+\begin_inset Formula $\bm{x}\in[1,L]^{d}$
+\end_inset
+
+, we can use an 
+\emph on
+ordering
+\emph default
+ of them, given by positive integers 
+\begin_inset Formula $k\in[1,L^{d}]$
+\end_inset
+
+:
+\begin_inset Formula 
+\begin{align}
+k & =\left({\displaystyle \sum_{i=1}^{d}}(x_{i}-1)L^{i-1}\right)+1\label{eq:ordering}\\
+\implies p(\{\phi_{k}\}_{k\in[1,N]}) & =e^{-S[\phi]}/Z\label{eq:probability}
+\end{align}
+
+\end_inset
+
+where 
+\begin_inset Formula $N=L^{d}$
+\end_inset
+
+.
+ From the chain rule of conditional probability- a generalized version of
+ Bayes theorem that also goes by the name 
+\emph on
+autoregressive relation
+\emph default
+, 
+\begin_inset Formula $p$
+\end_inset
+
+ can be factorized into N conditional terms:
+\begin_inset Formula 
+\begin{align}
+p(\{\phi_{k}\}) & =p(\phi_{1},\phi_{2}\dots\phi_{N})=p(\phi_{1})p(\phi_{2}|\phi_{1})\dots p(\phi_{N}|\phi_{N-1}\dots\phi_{2},\phi_{1})\nonumber \\
+ & =\prod_{k\in[1,N]}p(\phi_{k}|\phi_{<k})\label{eq:chainrule}
+\end{align}
+
+\end_inset
+
+The advantage of this expression is that we can sequentially sample 
+\begin_inset Formula $\phi_{k}$
+\end_inset
+
+ from 
+\begin_inset Formula $k=1$
+\end_inset
+
+ to 
+\begin_inset Formula $k=N$
+\end_inset
+
+ if we know the conditional probabilities 
+\begin_inset Formula $p(\phi_{k}|\phi_{<k})$
+\end_inset
+
+ in the RHS, is often simpler than the Boltzmann distribution since the
+ latter depend on one variable at a time.
+ However, exact form of the conditional 
+\begin_inset Formula $p(\phi_{k}|\phi_{<k})$
+\end_inset
+
+ is unknown- especially for arbitrary choices of 
+\begin_inset Formula $S[\phi]$
+\end_inset
+
+.
+ For our study, let's specialize 2 different systems for our choice of 
+\begin_inset Formula $S[\phi]$
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Paragraph
+Ising model
+\end_layout
+
+\begin_layout Standard
+In the nearest neighbour Ising model with constant couplings 
+\begin_inset Formula $J$
+\end_inset
+
+ and inverse temperature 
+\begin_inset Formula $\beta$
+\end_inset
+
+, 
+\begin_inset Formula $S[\phi]$
+\end_inset
+
+ is given by:
+\begin_inset Formula 
+\begin{equation}
+S[\phi]=-\beta J\sum_{\mu=1}^{d}\sum_{x_{\nu=\mu}\in[2,L],x_{\nu\neq\mu}\in[1,L]}\phi(\bm{x}-\hat{\mu})\phi(\bm{x})\label{eq:ising_action}
+\end{equation}
+
+\end_inset
+
+where 
+\begin_inset Formula $\phi(\bm{x})$
+\end_inset
+
+ can only take the values 
+\begin_inset Formula $\pm1$
+\end_inset
+
+.
+ So the conditionals 
+\begin_inset Formula $p(\phi_{k}|\phi_{<k})$
+\end_inset
+
+ are modelled by categorical distributions with one independent parameter.
+ We've deliberately written 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "eq:ising_action"
+
+\end_inset
+
+ in a form that strictly respects the open boundary conditions we've assumed.
+\end_layout
+
+\begin_layout Paragraph
+Scalar lattice field theory
+\end_layout
+
+\begin_layout Standard
+In the scalar lattice field theory, 
+\begin_inset Formula $S[\phi]$
+\end_inset
+
+ is the 
+\emph on
+action
+\emph default
+ given by:
+\begin_inset Formula 
+\begin{equation}
+S[\phi]={\displaystyle \sum_{\bm{x}\in[1,L]^{d}}}\left[\frac{1}{a^{2}}\phi(\bm{x}){\displaystyle \sum_{\bm{y}}}\boxempty(\bm{x},\bm{y})\phi(\bm{y})+m^{2}\phi(\bm{x})^{2}+\lambda\phi(\bm{x})^{4}\right]\label{eq:latticeFT-action}
+\end{equation}
+
+\end_inset
+
+where 
+\begin_inset Formula $a$
+\end_inset
+
+, 
+\begin_inset Formula $m$
+\end_inset
+
+, 
+\begin_inset Formula $\lambda$
+\end_inset
+
+ are the lattice spacing, mass and coupling respectively.
+ For the open boundary, we must expand the d'Alembertian term in the RHS
+ as:
+\begin_inset Formula 
+\[
+{\displaystyle \sum_{\bm{x}\in[1,L]^{d}}}\phi(\bm{x}){\displaystyle \sum_{\bm{y}}}\boxempty(\bm{x},\bm{y})\phi(\bm{y})=\sum_{\mu=1}^{d}\sum_{x_{\nu=\mu}\in[2,L-1],x_{\nu}\neq[1,L]}2\phi(\bm{x})^{2}-\phi(\bm{x})\phi(\bm{x}-\hat{\mu})-\phi(\bm{x})\phi(\bm{x}+\hat{\mu})
+\]
+
+\end_inset
+
+where 
+\begin_inset Formula $\phi(\bm{x})$
+\end_inset
+
+ can take any real value.
+\end_layout
+
+\begin_layout Standard
+A crucial common feature between the 2 systems is that there's only 
+\begin_inset Quotes eld
+\end_inset
+
+interactions
+\begin_inset Quotes erd
+\end_inset
+
+ between neighbouring values and the dependence is specifically of the form
+ 
+\begin_inset Formula $\phi(\bm{x})\phi(\bm{x}-\hat{\mu})$
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Subsection
+Smaller dependency sets due to nearest neighbour interactions
+\end_layout
+
+\begin_layout Standard
+Let's order our lattice points according to the ordering in equation 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "eq:ordering"
+
+\end_inset
+
+.
+ Examining the 
+\begin_inset Formula $k$
+\end_inset
+
+th conditional probability 
+\begin_inset Formula $p(\phi_{k}|\phi_{<k})$
+\end_inset
+
+, its distribution in general depends on 
+\begin_inset Formula $k-1$
+\end_inset
+
+ values in 
+\begin_inset Formula $\phi_{<k}=\{\phi_{k-1},\dots\phi_{1}\}$
+\end_inset
+
+.
+ This means the complexity of these distributions can explode if the number
+ of lattice points 
+\begin_inset Formula $N$
+\end_inset
+
+ is large, which is typically the case of interest.
+ That's the reason deep neural networks have been utilized to model them
+ so far.
+ However for systems with nearest neighbour interactions, the 
+\emph on
+dependency set
+\emph default
+ is significantly smaller, and doesn't even increase with 
+\begin_inset Formula $k$
+\end_inset
+
+ after a certain point.
+ 
+\end_layout
+
+\begin_layout Standard
+We'll work with the Ising model- the analysis can be generalized to lattice
+ field theory and any system with only nearest neighbour interactions.
+ Restating the autoregressive relation for the Ising model
+\begin_inset Foot
+status collapsed
+
+\begin_layout Plain Layout
+\begin_inset Formula $k-\hat{\mu}$
+\end_inset
+
+ should be understood as the lattice position 
+\begin_inset Formula $\bm{x}-\hat{\mu}$
+\end_inset
+
+ where 
+\begin_inset Formula $\bm{x}$
+\end_inset
+
+ maps to 
+\begin_inset Formula $k$
+\end_inset
+
+ according to the given ordering
+\end_layout
+
+\end_inset
+
+:
+\begin_inset Formula 
+\begin{equation}
+\prod_{k=1}^{N}p(\phi_{k}|\phi_{<k})=p(\phi)=\exp\left(-\beta J\sum_{\mu=1}^{d}\sum_{k}\phi_{k}\phi_{k-\hat{\mu}}\right)/Z\label{eq:log_autoreg}
+\end{equation}
+
+\end_inset
+
+In order to determine the dependency set, let's start backwards from with
+ the distribution for the 
+\begin_inset Formula $N$
+\end_inset
+
+th spin 
+\begin_inset Formula $p(\phi_{N}|\phi_{<N})$
+\end_inset
+
+ where other all spins are known.
+ We can cluster together every other term in the above equation in the form
+ an unconditional probability using Bayes theorem:
+\begin_inset Formula 
+\[
+\prod_{k=1}^{N-1}p(\phi_{k}|\phi_{<k})=p(\phi_{<N})
+\]
+
+\end_inset
+
+so that
+\begin_inset Formula 
+\[
+p(\phi_{N}|\phi_{<N})p(\phi_{<N})=p(\phi)
+\]
+
+\end_inset
+
+and the unconditional probability 
+\begin_inset Formula $\log p(\phi_{<N})$
+\end_inset
+
+ can be written as:
+\begin_inset Formula 
+\[
+p(\phi_{<N})=\sum_{\phi_{N}}p(\phi)=\sum_{\phi_{N}}\exp\left(-\beta J\sum_{\mu=1}^{d}\sum_{k}\phi_{k}\phi_{k-\hat{\mu}}\right)/Z
+\]
+
+\end_inset
+
+which leads to
+\begin_inset Formula 
+\[
+p(\phi_{N}|\phi_{<N})=\frac{p(\phi)}{{\displaystyle \sum_{\phi_{N}}}p(\phi)}=\frac{\exp\left(-\beta J{\displaystyle \sum_{\mu=1}^{d}}{\displaystyle \sum_{k}}\phi_{k}\phi_{k-\hat{\mu}}\right)}{{\displaystyle \sum_{\phi_{N}}}\exp\left(-\beta J{\displaystyle \sum_{\mu=1}^{d}}{\displaystyle \sum_{k}}\phi_{k}\phi_{k-\hat{\mu}}\right)}
+\]
+
+\end_inset
+
+Here, every term cancels between the numerator and denominator except the
+ ones that multiply or 
+\begin_inset Quotes eld
+\end_inset
+
+interact with
+\begin_inset Quotes erd
+\end_inset
+
+ 
+\begin_inset Formula $\phi_{N}$
+\end_inset
+
+, since addition within exponentials beautifully factors outside:
+\begin_inset Formula 
+\[
+p(\phi_{N}|\phi_{<N})=\frac{\exp\left(-\beta J\phi_{N}{\displaystyle \sum_{\mu=1}^{d}}\phi_{k-\hat{\mu}}+\delta(\phi_{<N})\right)}{{\displaystyle \sum_{\phi_{N}}}\exp\left(-\beta J\phi_{N}{\displaystyle \sum_{\mu=1}^{d}}\phi_{k-\hat{\mu}}+\delta(\phi_{<N})\right)}=\frac{\exp\left(-\beta J\phi_{N}{\displaystyle \sum_{\mu=1}^{d}}\phi_{N-\hat{\mu}}\right)}{{\displaystyle \sum_{\phi_{N}}}\exp\left(-\beta J\phi_{N}{\displaystyle \sum_{\mu=1}^{d}}\phi_{N-\hat{\mu}}\right)}
+\]
+
+\end_inset
+
+So 
+\begin_inset Formula $p(\phi_{N}|\phi_{<N})$
+\end_inset
+
+ doesn't depend on all the 
+\begin_inset Formula $N-1$
+\end_inset
+
+ values within 
+\begin_inset Formula $\phi_{<N}$
+\end_inset
+
+ but only the 
+\begin_inset Formula $d$
+\end_inset
+
+ neighbouring values 
+\begin_inset Formula $\phi_{N-\hat{\mu}}$
+\end_inset
+
+.
+ Proceeding to the next term:
+\begin_inset Formula 
+\begin{align*}
+p(\phi_{N-1}|\phi_{<N-1}) & =\frac{p(\phi_{<N})}{p(\phi_{<N-1})}=\frac{{\displaystyle \sum_{\phi_{N}}}\exp\left(-\beta J\phi_{N}{\displaystyle \sum_{\mu=1}^{d}}\phi_{N-\hat{\mu}}+-\beta J\phi_{N-1}{\displaystyle \sum_{\mu=1}^{d}}\phi_{N-1-\hat{\mu}}+\delta(\phi_{<N-1})\right)}{{\displaystyle \sum_{\phi_{N},\phi_{N-1}}}\exp\left(-\beta J\phi_{N}{\displaystyle \sum_{\mu=1}^{d}}\phi_{N-\hat{\mu}}+-\beta J\phi_{N-1}{\displaystyle \sum_{\mu=1}^{d}}\phi_{N-1-\hat{\mu}}+\delta(\phi_{<N-1})\right)}\\
+ & =\frac{{\displaystyle \sum_{\phi_{N}}}\exp\left(-\beta J\phi_{N}{\displaystyle \sum_{\mu=1}^{d}}\phi_{N-\hat{\mu}}+-\beta J\phi_{N-1}{\displaystyle \sum_{\mu=1}^{d}}\phi_{N-1-\hat{\mu}}\right)}{{\displaystyle \sum_{\phi_{N},\phi_{N-1}}}\exp\left(-\beta J\phi_{N}{\displaystyle \sum_{\mu=1}^{d}}\phi_{N-\hat{\mu}}+-\beta J\phi_{N-1}{\displaystyle \sum_{\mu=1}^{d}}\phi_{N-1-\hat{\mu}}\right)}
+\end{align*}
+
+\end_inset
+
+and this depends on the neighbours of both 
+\begin_inset Formula $\phi_{N}$
+\end_inset
+
+ and 
+\begin_inset Formula $\phi_{N-1}$
+\end_inset
+
+.
+ In general, we have for 
+\begin_inset Formula $p(\phi_{k}|\phi_{<k})$
+\end_inset
+
+:
+\begin_inset Formula 
+\begin{align}
+p(\phi_{k}|\phi_{<k}) & =\frac{{\displaystyle \sum_{\phi_{N},\dots\phi_{k+1}}}\exp\left(-\beta J{\displaystyle \sum_{l=k}^{N}}\left(\phi_{l}{\displaystyle \sum_{\mu}}\phi_{l-\hat{\mu}}\right)\right)}{{\displaystyle \sum_{\phi_{N},\dots\phi_{k}}}\exp\left(-\beta J{\displaystyle \sum_{l=k}^{N}}\left(\phi_{l}{\displaystyle \sum_{\mu}}\phi_{l-\hat{\mu}}\right)\right)}\label{eq:ising_k_conditional}
+\end{align}
+
+\end_inset
+
+and the dependency set here contains the values of neighbours of 
+\begin_inset Formula $\phi_{>k}$
+\end_inset
+
+ contained within 
+\begin_inset Formula $\phi_{<k}$
+\end_inset
+
+.
+ The number of elements in the dependency set is bounded above by 
+\begin_inset Formula $L^{d-1}$
+\end_inset
+
+ or 
+\begin_inset Formula $N/L$
+\end_inset
+
+ (due to some geometric constraints, see figure ) which is an 
+\begin_inset Quotes eld
+\end_inset
+
+order of magnitude
+\begin_inset Quotes erd
+\end_inset
+
+ smaller than the original upper bound 
+\begin_inset Formula $N$
+\end_inset
+
+.
+\begin_inset Float figure
+wide false
+sideways false
+status collapsed
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename Figures/boltz_dep_field.png
+	scale 50
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+In the 2 dimensional 
+\begin_inset Formula $10\times10$
+\end_inset
+
+ lattice above, the conditional probability 
+\begin_inset Formula $p(\phi_{k}|\phi_{<k})$
+\end_inset
+
+ of the red spin depends only on the nearest neighbours of the spins in
+ 
+\begin_inset Formula $\phi_{>k}$
+\end_inset
+
+ (coloured white), within 
+\begin_inset Formula $\phi_{<k}$
+\end_inset
+
+.
+ Hence the dependency set is only the 
+\begin_inset Formula $L=10$
+\end_inset
+
+ spins coloured black and doesn't contain the grey ones above it.
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsection
+Effective size of dependency set depends on the values of hyperparameters
+ of the system
+\end_layout
+
+\begin_layout Paragraph
+High temperature expansion
+\end_layout
+
+\begin_layout Standard
+Let's work in the limit 
+\begin_inset Formula $\beta\to0$
+\end_inset
+
+ for the Ising model.
+ Intuitively speaking, the spins are expected to behave (or distributed)
+ independently at the high temperature limit:
+\begin_inset Formula 
+\[
+p(\phi)\approx\prod_{k}p(\phi_{k})
+\]
+
+\end_inset
+
+For a better approximation, setting 
+\begin_inset Formula $\beta$
+\end_inset
+
+ small in the equation 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "eq:ising_k_conditional"
+
+\end_inset
+
+ gives:
+\begin_inset Formula 
+\begin{align*}
+p(\phi_{k}|\phi_{<k}) & =\frac{{\displaystyle \sum_{\phi_{N},\dots\phi_{k+1}}1-\beta J{\displaystyle \sum_{l=k}^{N}}\left(\phi_{l}{\displaystyle \sum_{\mu}}\phi_{l-\hat{\mu}}\right)+\mathbb{\mathcal{O}}(\beta^{2})}}{{\displaystyle \sum_{\phi_{N},\dots\phi_{k}}1-\beta J{\displaystyle \sum_{l=k}^{N}}\left(\phi_{l}{\displaystyle \sum_{\mu}}\phi_{l-\hat{\mu}}\right)}+\mathbb{\mathcal{O}}(\beta^{2})}
+\end{align*}
+
+\end_inset
+
+Separating out terms containing 
+\begin_inset Formula $\phi_{k}$
+\end_inset
+
+ in the numerator and expanding sums over 1:
+\begin_inset Formula 
+\[
+p(\phi_{k}|\phi_{<k})\approx\frac{2^{N-k}-\beta J\phi_{k}{\displaystyle \sum_{\mu}}\phi_{k-\hat{\mu}}-{\displaystyle \sum_{\phi_{N},\dots\phi_{k+1}}\beta J{\displaystyle \sum_{l=k+1}^{N}}\left(\phi_{l}{\displaystyle \sum_{\mu}}\phi_{l-\hat{\mu}}\right)}}{2^{N-k+1}-{\displaystyle \sum_{\phi_{N},\dots\phi_{k+1}}\beta J{\displaystyle \sum_{l=k}^{N}}\left(\phi_{l}{\displaystyle \sum_{\mu}}\phi_{l-\hat{\mu}}\right)}}
+\]
+
+\end_inset
+
+The terms in the brackets vanish since we symmetrically sum over 
+\begin_inset Formula $\pm1$
+\end_inset
+
+ on all of them, giving:
+\begin_inset Formula 
+\[
+p(\phi_{k}|\phi_{<k})=0.5-\frac{\beta}{2}J\phi_{k}{\displaystyle \sum_{\mu}}\phi_{k-\hat{\mu}}+\mathcal{O}(\beta^{2})
+\]
+
+\end_inset
+
+so when 
+\begin_inset Formula $\beta$
+\end_inset
+
+ is small, there's an 
+\begin_inset Formula $\mathcal{O}(\beta)$
+\end_inset
+
+ dependence on the nearest neighbours while the rest are even smaller.
+ So assuming that the dependency set for 
+\begin_inset Formula $p(\phi_{k}|\phi_{<k})$
+\end_inset
+
+ 
+\emph on
+effectively 
+\emph default
+consists only of the nearest neighbours can be a good approximation for
+ a small 
+\begin_inset Formula $\beta$
+\end_inset
+
+.
+ Slowly increasing 
+\begin_inset Formula $\beta$
+\end_inset
+
+, the 
+\begin_inset Formula $\mathcal{O}(\beta^{2})$
+\end_inset
+
+ terms become significant, and some more math digging would reveal terms
+ of that order include terms of the forms 
+\begin_inset Formula $\beta^{2}J^{2}\phi_{k}^{2}\phi_{k+\hat{\mu}}\phi_{k+\hat{\mu}-\hat{\nu}}$
+\end_inset
+
+, 
+\begin_inset Formula $\beta^{2}J^{2}\phi_{k}\phi_{k+\hat{\mu}}^{2}\phi_{k+\hat{\mu}-\hat{\nu}}$
+\end_inset
+
+ and 
+\begin_inset Formula $\beta^{2}J^{2}\phi_{k}\phi_{k+\hat{\mu}}\phi_{k+\hat{\mu}+\hat{\nu}}\phi_{k+\hat{\mu}+\hat{\nu}-\hat{\sigma}}$
+\end_inset
+
+ that are within 
+\begin_inset Formula $\phi_{<k}$
+\end_inset
+
+, which we could interpret as spins within 
+\begin_inset Formula $\phi_{<k}$
+\end_inset
+
+ that can be reached via/contained within a path of length 
+\begin_inset Formula $3$
+\end_inset
+
+ inside 
+\begin_inset Formula $\phi_{>k}$
+\end_inset
+
+.
+ This practically includes second/third nearest neighbours of 
+\begin_inset Formula $\phi_{k}$
+\end_inset
+
+.
+ Recursing this logic, we can conclude that increasing 
+\begin_inset Formula $\beta$
+\end_inset
+
+ grows the effective dependency set to an 
+\emph on
+upper bound
+\emph default
+ of 
+\begin_inset Formula $N/L$
+\end_inset
+
+ positions as we inferred from the previous section.
+\end_layout
+
+\begin_layout Paragraph
+Low temperature expansion
+\end_layout
+
+\begin_layout Standard
+Let's look at the other extreme, 
+\begin_inset Formula $\beta\to\infty$
+\end_inset
+
+.
+ Let's set 
+\begin_inset Formula $J=-1$
+\end_inset
+
+ representing ferromagnetic couplings for simplicity.
+ For this low temperature limit, it's useful to start with with the so-called
+ ground state where all spins in the dependency set within 
+\begin_inset Formula $\phi_{<k}$
+\end_inset
+
+ are aligned (
+\begin_inset Formula $=+1$
+\end_inset
+
+ wlog).
+ We then have:
+\begin_inset Formula 
+\begin{equation}
+p(\phi_{k}|\phi_{<k}=1)=\frac{{\displaystyle \sum_{\phi_{>k}=\pm1}}\exp\beta\left(d\phi_{k}+{\displaystyle \sum}\overleftrightarrow{\phi}_{>k}+{\displaystyle \sum}\left(\overleftrightarrow{\phi}_{>k}\tilde{\phi}_{>k}+\tilde{\phi}_{>k}\tilde{\phi}_{>k}\right)\right)}{{\displaystyle \sum_{\phi_{\geq k}=\pm1}}\exp\beta\left(d\phi_{k}+{\displaystyle \sum}\overleftrightarrow{\phi}_{>k}+{\displaystyle \sum}\left(\overleftrightarrow{\phi}_{>k}\tilde{\phi}_{>k}+\tilde{\phi}_{>k}\tilde{\phi}_{>k}\right)\right)}\label{eq:low_t_ground_state}
+\end{equation}
+
+\end_inset
+
+where 
+\begin_inset Formula $\overleftrightarrow{\phi}_{>k}$
+\end_inset
+
+ are the spins within 
+\begin_inset Formula $\phi_{>k}$
+\end_inset
+
+ that are adjecent to 
+\begin_inset Formula $\phi_{<k}$
+\end_inset
+
+ and 
+\begin_inset Formula $\tilde{\phi}_{>k}$
+\end_inset
+
+ are the remaining spins in 
+\begin_inset Formula $\phi_{>k}$
+\end_inset
+
+.
+ For large 
+\begin_inset Formula $\beta$
+\end_inset
+
+, the summation term for 
+\begin_inset Formula $\phi_{>k}=1$
+\end_inset
+
+ is exponentially larger than any permutation term assigning 
+\begin_inset Formula $-1$
+\end_inset
+
+s on both the numerator and denominator, giving us the series expansions:
+\begin_inset Formula 
+\[
+p(\phi_{k}|\phi_{<k}=1)=\frac{{\displaystyle \exp\beta\left(2d\phi_{k}+N-k-1\right)}+c_{1}\exp\beta(2d\phi_{k}+N-k-1-2d)+\mathcal{O}(e^{-4\beta d})}{\exp\beta\left(2d+N-k-1\right)+c'_{1}\exp\beta\left(N-k-1\right)+c'_{2}\exp\beta\left(-2d+N-k-1\right)+\mathcal{O}(e^{-3\beta d})}
+\]
+
+\end_inset
+
+where flipping one spin to 
+\begin_inset Formula $-1$
+\end_inset
+
+ inside 
+\begin_inset Formula $\phi_{>k}$
+\end_inset
+
+ has an energy penalty of 
+\begin_inset Formula $-2d$
+\end_inset
+
+ hence the expansion with successive terms in both the numerator and denominator
+ getting smaller.
+ Clearly, we have 
+\begin_inset Formula $p(\phi_{k}=1|\phi_{<k})=e^{2\beta d}p(\phi_{k}=-1|\phi_{<k})$
+\end_inset
+
+ in the ground state.
+ What if a neighbouring value of 
+\begin_inset Formula $\phi_{k}$
+\end_inset
+
+ is flipped (first excited state)? Then we replace 
+\begin_inset Formula $d$
+\end_inset
+
+ in equation 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "eq:low_t_ground_state"
+
+\end_inset
+
+ with 
+\begin_inset Formula $d-2$
+\end_inset
+
+ and we yield a similar expansion but end the result being 
+\begin_inset Formula $p(\phi_{k}=1|\phi_{<k})=e^{2\beta(d-2)}p(\phi_{k}=-1|\phi_{<k})$
+\end_inset
+
+.
+ How much does this odds depend on flipping other spins in the dependency
+ set? That requires expansions with larger number of terms than the one
+ above but we'll eventually see that they don't affect the odds unless we
+ crank 
+\begin_inset Formula $\beta$
+\end_inset
+
+ down to smaller values such that flipping multiple spins have small enough
+ 
+\begin_inset Formula $-2\beta d$
+\end_inset
+
+ penalty for each spin.
+ So reducing 
+\begin_inset Formula $\beta$
+\end_inset
+
+ 
+\emph on
+increases
+\emph default
+ the effective dependency set from just nearest neighbours to include more
+ positions until an upper bound of 
+\begin_inset Formula $N/L$
+\end_inset
+
+.
+ Why start from ground state since 
+\begin_inset Formula $p(\phi_{k}|\phi_{<k})$
+\end_inset
+
+ would require no such assumptions? Even if it turns out that our conclusion
+ of strongest neighbour dependency is wrong for states far from the ground
+ state, we are not bothered since these configurations are exponentially
+ less likely to be actually encountered while sampling using an autoregressive
+ process at low temperatures, according to the unconditional distribution
+ 
+\begin_inset Formula $p(\phi_{<k})$
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Standard
+We've waved hands in showing a stronger neighbourhood dependency compared
+ to farther ones for the conditional probabilities at both high and low
+ temperature limits.
+ In particular, the effective dependency set is the smallest at both limits,
+ and it grows as we move away from them.
+ And its not a mystery to anyone who has worked with the Ising model before
+ that there's a phase transition or critical point at an intermediate temperatur
+e when 
+\begin_inset Formula $d\geq2$
+\end_inset
+
+ and the same goes for lattice field theory as well (even though we suspect
+ similar high and low temperature expansions would be substantially harder).
+ A curious feature about phase transition in the Ising model is there's
+ another quantity 
+\emph on
+correlation length
+\emph default
+ that displays the same behaviour of growing away from both the high and
+ low temperature limits.
+ The goal of this study is to verify the relationship between correlation
+ length and the minimum number of inputs (within the dependency set) required
+ for an autoregressive neural network to model the target distribution to
+ arbitrary accuracy.
+\end_layout
+
+\end_body
+\end_document
