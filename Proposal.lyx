@@ -88,11 +88,8 @@
 \begin_body
 
 \begin_layout Title
-Autoregressive networks based on 
-\begin_inset Formula $d-1$
-\end_inset
-
- dimensional convolutions for lattice field theory simulations
+Locality constrained autoregressive networks for lattice field theory simulation
+s
 \end_layout
 
 \begin_layout Section
@@ -177,7 +174,7 @@ reference "eq:boltzmann"
 
 \end_inset
 
- as a product of conditional distirbutions at every position:
+ as a product of conditional distributions at every position:
 \begin_inset Formula 
 \begin{align}
 p(\{\phi_{k}\}) & =p(\phi_{1},\phi_{2}\dots\phi_{N})=p(\phi_{1})p(\phi_{2}|\phi_{1})\dots p(\phi_{N}|\phi_{N-1}\dots\phi_{2},\phi_{1})\nonumber \\
@@ -246,19 +243,46 @@ and
 \end_inset
 
  can take any real value.
- Note that the action 
-\begin_inset Formula $S$
+ Note that 
+\begin_inset Formula $S[\phi]$
 \end_inset
 
- depends only on nearest neighbour product/interaction terms like 
+ contains only nearest neighbour product/interaction terms 
 \begin_inset Formula $\phi(\bm{x})\phi(\bm{x}-\hat{\mu})$
 \end_inset
 
- besides powers of 
+ and 
+\begin_inset Formula $\phi(\bm{x})\phi(\bm{x}+\hat{\mu})$
+\end_inset
+
+, other than powers of 
 \begin_inset Formula $\phi(\bm{x})$
 \end_inset
 
- alone.
+.
+ This property of the action is known as 
+\emph on
+locality
+\emph default
+ which is obeyed by more complex lattice field theory systems as well
+\begin_inset Foot
+status collapsed
+
+\begin_layout Plain Layout
+In more famous words, 
+\begin_inset Quotes eld
+\end_inset
+
+there's no spooky action at a distance
+\begin_inset Quotes erd
+\end_inset
+
+.
+\end_layout
+
+\end_inset
+
+.
 \end_layout
 
 \begin_layout Section
@@ -363,114 +387,46 @@ status collapsed
 
 \end_inset
 
-In order to determine the dependency set, let's start backwards from with
- the distribution for the 
-\begin_inset Formula $N$
+From Bayes theorem, we can relate this conditional probability to the unconditio
+nal probabilities of the first 
+\begin_inset Formula $k$
 \end_inset
 
-th spin 
-\begin_inset Formula $p(\phi_{N}|\phi_{<N})$
+ and 
+\begin_inset Formula $k-1$
 \end_inset
 
- where all other 
-\begin_inset Formula $N-1$
-\end_inset
-
- spins are known.
- We can cluster together every other term in the above equation in the form
- an unconditional probability using Bayes theorem:
+ spins, which can in turn be written as reduced forms of the Boltzmann distribut
+ion:
 \begin_inset Formula 
 \[
-\prod_{k=1}^{N-1}p(\phi_{k}|\phi_{<k})=p(\phi_{<N})
+p(\phi_{k}|\phi_{<k})=\frac{p(\phi_{1},\dots\phi_{k})}{p(\phi_{1},\dots\phi_{k-1})}=\frac{{\displaystyle \sum_{\phi_{k+1}\dots\phi_{N}}}p(\phi)}{{\displaystyle \sum_{\phi_{k}\dots\phi_{N}}}p(\phi)}
 \]
 
 \end_inset
 
-so that
-\begin_inset Formula 
-\[
-p(\phi_{N}|\phi_{<N})p(\phi_{<N})=p(\phi)
-\]
-
+Expanding the 
+\begin_inset Formula $p(\phi)$
 \end_inset
 
-and the unconditional probability 
-\begin_inset Formula $\log p(\phi_{<N})$
-\end_inset
-
- can be written as:
-\begin_inset Formula 
-\[
-p(\phi_{<N})=\sum_{\phi_{N}}p(\phi)=\sum_{\phi_{N}}\exp\left(-\beta J\sum_{\mu=1}^{d}\sum_{k}\phi_{k}\phi_{k-\hat{\mu}}\right)/Z
-\]
-
-\end_inset
-
-which leads to
-\begin_inset Formula 
-\[
-p(\phi_{N}|\phi_{<N})=\frac{p(\phi)}{{\displaystyle \sum_{\phi_{N}}}p(\phi)}=\frac{\exp\left(-\beta J{\displaystyle \sum_{\mu=1}^{d}}{\displaystyle \sum_{k}}\phi_{k}\phi_{k-\hat{\mu}}\right)}{{\displaystyle \sum_{\phi_{N}}}\exp\left(-\beta J{\displaystyle \sum_{\mu=1}^{d}}{\displaystyle \sum_{k}}\phi_{k}\phi_{k-\hat{\mu}}\right)}
-\]
-
-\end_inset
-
-Here, every term cancels between the numerator and denominator except the
- ones that containing 
-\begin_inset Formula $\phi_{N}$
-\end_inset
-
-, since addition within exponentials beautifully factors outside:
-\begin_inset Formula 
-\[
-p(\phi_{N}|\phi_{<N})=\frac{\exp\left(-\beta J\phi_{N}{\displaystyle \sum_{\mu=1}^{d}}\phi_{k-\hat{\mu}}+\delta(\phi_{<N})\right)}{{\displaystyle \sum_{\phi_{N}}}\exp\left(-\beta J\phi_{N}{\displaystyle \sum_{\mu=1}^{d}}\phi_{k-\hat{\mu}}+\delta(\phi_{<N})\right)}=\frac{\exp\left(-\beta J\phi_{N}{\displaystyle \sum_{\mu=1}^{d}}\phi_{N-\hat{\mu}}\right)}{{\displaystyle \sum_{\phi_{N}}}\exp\left(-\beta J\phi_{N}{\displaystyle \sum_{\mu=1}^{d}}\phi_{N-\hat{\mu}}\right)}
-\]
-
-\end_inset
-
-So 
-\begin_inset Formula $p(\phi_{N}|\phi_{<N})$
-\end_inset
-
- doesn't depend on all the 
-\begin_inset Formula $N-1$
-\end_inset
-
- values within 
-\begin_inset Formula $\phi_{<N}$
-\end_inset
-
- but only the 
-\begin_inset Formula $d$
-\end_inset
-
- neighbouring values 
-\begin_inset Formula $\phi_{N-\hat{\mu}}$
-\end_inset
-
-.
- Proceeding to the next term:
+ for the Ising model:
 \begin_inset Formula 
 \begin{align*}
-p(\phi_{N-1}|\phi_{<N-1}) & =\frac{p(\phi_{<N})}{p(\phi_{<N-1})}=\frac{{\displaystyle \sum_{\phi_{N}}}\exp\left(-\beta J\phi_{N}{\displaystyle \sum_{\mu=1}^{d}}\phi_{N-\hat{\mu}}+-\beta J\phi_{N-1}{\displaystyle \sum_{\mu=1}^{d}}\phi_{N-1-\hat{\mu}}+\delta(\phi_{<N-1})\right)}{{\displaystyle \sum_{\phi_{N},\phi_{N-1}}}\exp\left(-\beta J\phi_{N}{\displaystyle \sum_{\mu=1}^{d}}\phi_{N-\hat{\mu}}+-\beta J\phi_{N-1}{\displaystyle \sum_{\mu=1}^{d}}\phi_{N-1-\hat{\mu}}+\delta(\phi_{<N-1})\right)}\\
- & =\frac{{\displaystyle \sum_{\phi_{N}}}\exp\left(-\beta J\phi_{N}{\displaystyle \sum_{\mu=1}^{d}}\phi_{N-\hat{\mu}}+-\beta J\phi_{N-1}{\displaystyle \sum_{\mu=1}^{d}}\phi_{N-1-\hat{\mu}}\right)}{{\displaystyle \sum_{\phi_{N},\phi_{N-1}}}\exp\left(-\beta J\phi_{N}{\displaystyle \sum_{\mu=1}^{d}}\phi_{N-\hat{\mu}}+-\beta J\phi_{N-1}{\displaystyle \sum_{\mu=1}^{d}}\phi_{N-1-\hat{\mu}}\right)}
+p(\phi_{k}|\phi_{<k}) & =\frac{{\displaystyle \sum_{\phi_{N},\dots\phi_{k+1}}}\exp\left(-\beta J{\displaystyle \sum_{l=k}^{N}}\left(\phi_{l}{\displaystyle \sum_{\mu}}\phi_{l-\hat{\mu}}\right)+\delta(\phi_{<k})\right)}{{\displaystyle \sum_{\phi_{N},\dots\phi_{k}}}\exp\left(-\beta J{\displaystyle \sum_{l=k}^{N}}\left(\phi_{l}{\displaystyle \sum_{\mu}}\phi_{l-\hat{\mu}}\right)+\delta(\phi_{<k})\right)}
 \end{align*}
 
 \end_inset
 
-and this depends on the neighbours of both 
-\begin_inset Formula $\phi_{N}$
+Since the values in 
+\begin_inset Formula $\phi_{<k}$
 \end_inset
 
- and 
-\begin_inset Formula $\phi_{N-1}$
+ are fixed and not summed over, the terms 
+\begin_inset Formula $\delta(\phi_{<k})$
 \end_inset
 
-.
- In general, we have for 
-\begin_inset Formula $p(\phi_{k}|\phi_{<k})$
-\end_inset
-
-:
+ containing only them cancel from the numerator and denominator, leaving
+ us with:
 \begin_inset Formula 
 \begin{align}
 p(\phi_{k}|\phi_{<k}) & =\frac{{\displaystyle \sum_{\phi_{N},\dots\phi_{k+1}}}\exp\left(-\beta J{\displaystyle \sum_{l=k}^{N}}\left(\phi_{l}{\displaystyle \sum_{\mu}}\phi_{l-\hat{\mu}}\right)\right)}{{\displaystyle \sum_{\phi_{N},\dots\phi_{k}}}\exp\left(-\beta J{\displaystyle \sum_{l=k}^{N}}\left(\phi_{l}{\displaystyle \sum_{\mu}}\phi_{l-\hat{\mu}}\right)\right)}\label{eq:ising_k_conditional}
@@ -478,12 +434,24 @@ p(\phi_{k}|\phi_{<k}) & =\frac{{\displaystyle \sum_{\phi_{N},\dots\phi_{k+1}}}\e
 
 \end_inset
 
-and the dependency set here contains the values of neighbours of 
-\begin_inset Formula $\phi_{>k}$
+Even though 
+\begin_inset Formula $\phi_{<k}$
 \end_inset
 
- contained within 
+ contains 
+\begin_inset Formula $k-1$
+\end_inset
+
+ values, the conditional probability 
+\begin_inset Formula $p(\phi_{k}|\phi_{<k})$
+\end_inset
+
+ depends only on those positions within 
 \begin_inset Formula $\phi_{<k}$
+\end_inset
+
+ that are neighbours of the positions in 
+\begin_inset Formula $\phi_{\geq k}$
 \end_inset
 
 .
@@ -505,7 +473,7 @@ and the dependency set here contains the values of neighbours of
 \begin_inset Formula $N/L$
 \end_inset
 
- (due to geometric constraints, see figure 
+ for our choice of ordering (see figure 
 \begin_inset CommandInset ref
 LatexCommand ref
 reference "fig:2D-dep-field"
@@ -598,49 +566,150 @@ name "fig:2D-dep-field"
 
 \end_layout
 
+\begin_layout Paragraph
+Dependency surfaces for single and joint conditional distributions
+\end_layout
+
 \begin_layout Standard
-It takes a bit more imagination to convince oneself that this can be generalized
- for higher dimensional lattices.
- For 
-\begin_inset Formula $d$
+We can also mark the dependency set of 
+\begin_inset Formula $\phi_{k(\bm{x})}$
 \end_inset
 
- dimensional lattices, 
-\begin_inset Formula $p(\phi_{k}|\phi_{<k})$
-\end_inset
-
- depends on a 
+ as a 
 \begin_inset Formula $d-1$
 \end_inset
 
- dimensional box that can parametrically constructed using:
+ dimensional surface constructed parametrically using
+\begin_inset Foot
+status collapsed
+
+\begin_layout Plain Layout
+The reader is urged to spend some time grasping this, perhaps with aid from
+ figure 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:dep-set"
+
+\end_inset
+
+ for the case of 
+\begin_inset Formula $d=2$
+\end_inset
+
+.
+\end_layout
+
+\end_inset
+
+:
 \begin_inset Formula 
-\begin{align*}
-B_{\bm{x}}(y_{1},\dots y_{d-1}) & =\begin{cases}
+\begin{equation}
+B_{\bm{x}}(y_{1},\dots y_{d-1})=\begin{cases}
 [y_{1},\dots,y_{d-1},x_{d}] & \text{if }k(y_{1},\dots,y_{d-1},x_{d})<k(\bm{x})\\{}
 [y_{1},\dots,y_{d-1},x_{d}-1] & \text{if }k(y_{1},\dots,y_{d-1},x_{d})>k(\bm{x})
-\end{cases}
-\end{align*}
+\end{cases}\label{eq:dep_box}
+\end{equation}
 
 \end_inset
 
-What if we have second nearest neighbour interactions? The dependency set
- would be simply expanded to another 
-\begin_inset Formula $d-1$
-\end_inset
-
- dimensional box above the 
-\begin_inset Formula $B_{x}$
-\end_inset
-
- for nearest neighbour.
- A 
+We'll call this the 
 \emph on
-local
+dependency surface
 \emph default
- action principle (or nothing spooky at a distance) is a fundamental property
- of literally anything in physics so this mathematical result should be
- equally useful for more complex lattice field theories as well.
+ at 
+\begin_inset Formula $\bm{x}$
+\end_inset
+
+.
+ From 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "eq:ising_k_conditional"
+
+\end_inset
+
+, we can write down the joint conditional probabilities for more than one
+ variable.
+ For example, we can write:
+\begin_inset Formula 
+\begin{align}
+p(\phi_{k},\phi_{k+1}|\phi_{<k}) & =p(\phi_{k+1}|\phi_{<k+1})p(\phi_{k}|\phi_{<k})\nonumber \\
+ & =\frac{{\displaystyle \sum_{\phi_{N},\dots\phi_{k+2}}}\exp\left(-\beta J{\displaystyle \sum_{l=k}^{N}}\left(\phi_{l}{\displaystyle \sum_{\mu}}\phi_{l-\hat{\mu}}\right)\right)}{{\displaystyle \sum_{\phi_{N},\dots\phi_{k}}}\exp\left(-\beta J{\displaystyle \sum_{l=k}^{N}}\left(\phi_{l}{\displaystyle \sum_{\mu}}\phi_{l-\hat{\mu}}\right)\right)}\label{eq:2-conditional}
+\end{align}
+
+\end_inset
+
+Here, if the 
+\begin_inset Formula $x_{d}$
+\end_inset
+
+ is the same for both 
+\begin_inset Formula $k$
+\end_inset
+
+ and 
+\begin_inset Formula $k+1$
+\end_inset
+
+, then the dependency surface for this joint conditional porbability is
+ still the same 
+\begin_inset Formula $B_{\bm{x}}$
+\end_inset
+
+! For a particular choice of 
+\begin_inset Formula $\bm{x}=[1,\dots,1,t]$
+\end_inset
+
+, the dependency surface 
+\begin_inset Formula $B_{\bm{x}}$
+\end_inset
+
+ =
+\begin_inset Formula $[y_{1},\dots,y_{d-1},t-1]$
+\end_inset
+
+ since the case 1 in 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "eq:dep_box"
+
+\end_inset
+
+ never arises.
+ By extension of the logic in 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "eq:2-conditional"
+
+\end_inset
+
+, the dependency of the surface 
+\begin_inset Formula $x_{d}=t$
+\end_inset
+
+ can be inferred from:
+\begin_inset Formula 
+\begin{equation}
+p(\phi_{k(\bm{x})},\dots\phi_{k(\bm{x})+L^{d-1}-1}|\phi_{<k})=\frac{{\displaystyle \sum_{\phi_{N},\dots\phi_{k+L^{d-1}-1}}}\exp\left(-\beta J{\displaystyle \sum_{l=k}^{N}}\left(\phi_{l}{\displaystyle \sum_{\mu}}\phi_{l-\hat{\mu}}\right)\right)}{{\displaystyle \sum_{\phi_{N},\dots\phi_{k}}}\exp\left(-\beta J{\displaystyle \sum_{l=k}^{N}}\left(\phi_{l}{\displaystyle \sum_{\mu}}\phi_{l-\hat{\mu}}\right)\right)}\label{eq:surface-conditional}
+\end{equation}
+
+\end_inset
+
+and that's simply 
+\begin_inset Formula $B_{\bm{x}}$
+\end_inset
+
+.
+ In simpler terms, the joint probability of the surface 
+\begin_inset Formula $x_{d}=t$
+\end_inset
+
+ is conditioned only on the surface 
+\begin_inset Formula $x_{d}=t-1$
+\end_inset
+
+: it's similar to propagating a stochastic differential equation from an
+ initial value!
 \end_layout
 
 \begin_layout Section
@@ -716,9 +785,15 @@ literal "false"
 \end_layout
 
 \begin_layout Standard
-An intriguing alternative would be to model the 2-variable conditional distribut
-ion 
+We can model the 2-variable conditional distribution 
 \begin_inset Formula $p(\phi_{k+1},\phi_{k}|B_{k})$
+\end_inset
+
+ from 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "eq:2-conditional"
+
 \end_inset
 
  using a flow-based network like RealNVP
@@ -729,6 +804,11 @@ literal "false"
 
 \end_inset
 
+ where the prior distribution would be Gaussians parameterized by a convolutiona
+l network acting on 
+\begin_inset Formula $B_{k}$
+\end_inset
+
 .
  It uses a much more flexible ansatz compared to mixture of Gaussians and
  
@@ -737,7 +817,9 @@ reparameterizable
 \emph default
  sampling of the conditionals allows us to optimize the KL divergence directly,
  and mitigates issues like variance when using the REINFORCE estimator.
- This would essentially be a compact and scalable version of 
+ This can essentially be a compact (and scalable if it's the 2 variable
+ model) versions of a model that uses a flow-based network to sample the
+ entire lattice like in 
 \begin_inset CommandInset citation
 LatexCommand cite
 key "albergo2019flow"
@@ -759,6 +841,28 @@ This is an oversimplified picture and there are differences like periodic
 \end_inset
 
 .
+ 
+\end_layout
+
+\begin_layout Standard
+We can also model the quantity 
+\begin_inset Formula $p\left(\{\phi_{\bm{x}}\}_{x_{d}=t}|\{\phi_{\bm{x}}\}_{x_{d}=t-1}\right)$
+\end_inset
+
+ from 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "eq:surface-conditional"
+
+\end_inset
+
+ whose dependency set would be the surface 
+\begin_inset Formula $x_{d}=t-1$
+\end_inset
+
+, using flow based networks.
+ Since this samples one time step at a time, this model can be considered
+ an unsupervised version of neural SDEs.
 \end_layout
 
 \begin_layout Standard
@@ -797,27 +901,17 @@ literal "false"
 , it's sufficient to use 3D convolutional layers that have optimized GPU
  implementations in the CUDA stack or popular deep learning frameworks like
  PyTorch or Tensorflow- the same are typically absent for 4D convolutions.
- In a nutshell (and best of my perception), the compact autoregressive network
- proposed here would be to 
+ More generally, smaller input space of the proposed class of models help
+ tackle the curse of dimensionality that usually plagues neural networks-
+ and can be a 
 \begin_inset Quotes eld
 \end_inset
 
-local action principle
+locality
 \begin_inset Quotes erd
 \end_inset
 
- what convolutional neural networks is to 
-\begin_inset Quotes eld
-\end_inset
-
-translationally invariant data
-\begin_inset Quotes erd
-\end_inset
-
-.
- In more general terms, lower-sized inputs helped tackle the curse of dimensiona
-lity in gradient-based models and persuits for them have yielded successful
- architectures in the Geometric Deep Learning framework
+ addition to the Geometric Deep Learning framework
 \begin_inset CommandInset citation
 LatexCommand cite
 key "bronstein2017geometric"
@@ -825,8 +919,7 @@ literal "false"
 
 \end_inset
 
- and this model could potentially address local action distribution generation
- with a specialized focus.
+.
 \end_layout
 
 \begin_layout Standard

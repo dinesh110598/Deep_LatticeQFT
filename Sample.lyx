@@ -52,9 +52,11 @@
 \use_package stackrel 1
 \use_package stmaryrd 1
 \use_package undertilde 1
-\cite_engine basic
-\cite_engine_type default
+\cite_engine biblatex
+\cite_engine_type authoryear
 \biblio_style plain
+\biblatex_bibstyle numeric
+\biblatex_citestyle numeric
 \use_bibtopic false
 \use_indices false
 \paperorientation portrait
@@ -87,62 +89,52 @@
 \begin_body
 
 \begin_layout Title
-Autoregressive networks based on d-1 dimensional convolutions for lattice
- field theory
+Locality constrained autoregressive neural networks for lattice field theory
+ simulations
 \end_layout
 
 \begin_layout Section
-Markov Chain Monte Carlo algorithm based on autoregressive networks
+Introduction
+\end_layout
+
+\begin_layout Section
+Mathematical motivation
 \end_layout
 
 \begin_layout Subsection
-The autoregressive relation and systems with nearest neighbour interactions
+Lattice systems with local interactions
 \end_layout
 
 \begin_layout Standard
-Our system of interest is a lattice field of scalar values 
-\begin_inset Formula $\phi$
-\end_inset
-
- at every position 
-\begin_inset Formula $\bm{x}$
-\end_inset
-
- in a 
-\begin_inset Formula $d$
-\end_inset
-
--dimensional box of length 
+The system of interest consists of a box lattice of length 
 \begin_inset Formula $L$
 \end_inset
 
-, so that 
+ in 
+\begin_inset Formula $d$
+\end_inset
+
+ dimensions where every position is labeled using a 
+\begin_inset Formula $d$
+\end_inset
+
+-dimensional vector 
 \begin_inset Formula $\bm{x}\in[1,L]^{d}$
 \end_inset
 
 .
- We assume open boundary conditions so 
-\begin_inset Formula $x_{\mu}<1$
+ We use open boundary conditions, which means lattice positions 
+\begin_inset Formula $\bm{x}\notin[1,L]^{d}$
 \end_inset
 
- or 
-\begin_inset Formula $x_{\mu}>L$
-\end_inset
-
- do not exist for any component 
-\begin_inset Formula $\mu$
-\end_inset
-
- of 
-\begin_inset Formula $\bm{x}$
+ do not exist.
+ The system state/configuration is described using scalar values at every
+ position 
+\begin_inset Formula $\phi(\bm{x})$
 \end_inset
 
 .
- The lattice field configurations are distributed according to the 
-\emph on
-Boltzmann distribution
-\emph default
-:
+ The configurations obey the Boltzmann distribution:
 \begin_inset Formula 
 \begin{equation}
 p\left(\{\phi(\bm{x})\}_{\bm{x}\in[1,L]^{d}}\right)=e^{-S[\phi]}/Z\label{eq:boltzmann}
@@ -150,7 +142,11 @@ p\left(\{\phi(\bm{x})\}_{\bm{x}\in[1,L]^{d}}\right)=e^{-S[\phi]}/Z\label{eq:bolt
 
 \end_inset
 
-where 
+where the 
+\emph on
+action
+\emph default
+ 
 \begin_inset Formula $S[\phi]$
 \end_inset
 
@@ -163,78 +159,7 @@ where
 \end_inset
 
  is the normalizing constant sometimes known as partition function.
- Instead of using lattice vector 
-\begin_inset Formula $\bm{x}\in[1,L]^{d}$
-\end_inset
-
-, we can use an 
-\emph on
-ordering
-\emph default
- of them, given by positive integers 
-\begin_inset Formula $k\in[1,L^{d}]$
-\end_inset
-
-:
-\begin_inset Formula 
-\begin{align}
-k & =\left({\displaystyle \sum_{i=1}^{d}}(x_{i}-1)L^{i-1}\right)+1\label{eq:ordering}\\
-\implies p(\{\phi_{k}\}_{k\in[1,N]}) & =e^{-S[\phi]}/Z\label{eq:probability}
-\end{align}
-
-\end_inset
-
-where 
-\begin_inset Formula $N=L^{d}$
-\end_inset
-
-.
- From the chain rule of conditional probability- a generalized version of
- Bayes theorem that also goes by the name 
-\emph on
-autoregressive relation
-\emph default
-, 
-\begin_inset Formula $p$
-\end_inset
-
- can be factorized into N conditional terms:
-\begin_inset Formula 
-\begin{align}
-p(\{\phi_{k}\}) & =p(\phi_{1},\phi_{2}\dots\phi_{N})=p(\phi_{1})p(\phi_{2}|\phi_{1})\dots p(\phi_{N}|\phi_{N-1}\dots\phi_{2},\phi_{1})\nonumber \\
- & =\prod_{k\in[1,N]}p(\phi_{k}|\phi_{<k})\label{eq:chainrule}
-\end{align}
-
-\end_inset
-
-The advantage of this expression is that we can sequentially sample 
-\begin_inset Formula $\phi_{k}$
-\end_inset
-
- from 
-\begin_inset Formula $k=1$
-\end_inset
-
- to 
-\begin_inset Formula $k=N$
-\end_inset
-
- if we know the conditional probabilities 
-\begin_inset Formula $p(\phi_{k}|\phi_{<k})$
-\end_inset
-
- in the RHS, is often simpler than the Boltzmann distribution since the
- latter depend on one variable at a time.
- However, exact form of the conditional 
-\begin_inset Formula $p(\phi_{k}|\phi_{<k})$
-\end_inset
-
- is unknown- especially for arbitrary choices of 
-\begin_inset Formula $S[\phi]$
-\end_inset
-
-.
- For our study, let's specialize 2 different systems for our choice of 
+ For our study, we'll concentrate on 2 different choices of 
 \begin_inset Formula $S[\phi]$
 \end_inset
 
@@ -295,15 +220,15 @@ Scalar lattice field theory
 \end_layout
 
 \begin_layout Standard
-In the scalar lattice field theory, 
+In scalar lattice field theory, 
 \begin_inset Formula $S[\phi]$
 \end_inset
 
  is the 
 \emph on
-action
+Euclidean
 \emph default
- given by:
+ action given by:
 \begin_inset Formula 
 \begin{equation}
 S[\phi]={\displaystyle \sum_{\bm{x}\in[1,L]^{d}}}\left[\frac{1}{a^{2}}\phi(\bm{x}){\displaystyle \sum_{\bm{y}}}\boxempty(\bm{x},\bm{y})\phi(\bm{y})+m^{2}\phi(\bm{x})^{2}+\lambda\phi(\bm{x})^{4}\right]\label{eq:latticeFT-action}
@@ -341,36 +266,163 @@ where
 \end_layout
 
 \begin_layout Standard
-A crucial common feature between the 2 systems is that there's only 
+A common feature in the actions 
+\begin_inset Formula $S[\phi]$
+\end_inset
+
+ for both the systems is that they contain only nearest neighbour product/intera
+ction terms 
+\begin_inset Formula $\phi(\bm{x})\phi(\bm{x}-\hat{\mu})$
+\end_inset
+
+ and 
+\begin_inset Formula $\phi(\bm{x})\phi(\bm{x}+\hat{\mu})$
+\end_inset
+
+, other than powers of 
+\begin_inset Formula $\phi(\bm{x})$
+\end_inset
+
+.
+ This property of the action is known as 
+\emph on
+locality
+\emph default
+ which is obeyed by more complex lattice field theory systems as well
+\begin_inset Foot
+status collapsed
+
+\begin_layout Plain Layout
+It must be qualified that field theories can in general contain more than
+ one field.
+ For example, the action for quantum electrodynamics consists of guage fields
+ to describe photons and fermion fields to describe electrons.
+ The lattice action can have both single field and cross field terms.
+ Still, every term is evaluated on only neighbouring positions at most and
+ that makes the action local.
+ In more famous words, 
 \begin_inset Quotes eld
 \end_inset
 
-interactions
+there's no spooky action at a distance
 \begin_inset Quotes erd
 \end_inset
 
- between neighbouring values and the dependence is specifically of the form
- 
-\begin_inset Formula $\phi(\bm{x})\phi(\bm{x}-\hat{\mu})$
+.
+\end_layout
+
 \end_inset
 
 .
 \end_layout
 
 \begin_layout Subsection
-Smaller dependency sets due to nearest neighbour interactions
+Autoregressive relation
 \end_layout
 
 \begin_layout Standard
-Let's order our lattice points according to the ordering in equation 
+The Boltzmann distribution in 
 \begin_inset CommandInset ref
 LatexCommand ref
-reference "eq:ordering"
+reference "eq:boltzmann"
+
+\end_inset
+
+ depends on a large number of random variables 
+\begin_inset Formula $L^{d}=N$
+\end_inset
+
+ in the interesting case of large 
+\begin_inset Formula $L$
+\end_inset
+
+ and it's usually difficult to anlytically obtain the normalization constant
+ 
+\begin_inset Formula $Z$
+\end_inset
+
+ to calculate it directly as well as sample from it.
+ An alternative to labeling lattice positions as vectors
+\begin_inset Formula $\bm{x}\in[1,L]^{d}$
+\end_inset
+
+ is to use an integer 
+\emph on
+ordering
+\emph default
+ 
+\begin_inset Formula $k\in[1,N]$
+\end_inset
+
+.
+ We'll use a particular ordering that maps to vector positions as:
+\begin_inset Formula 
+\begin{equation}
+k=\left({\displaystyle \sum_{i=1}^{d}}(x_{i}-1)L^{i-1}\right)+1\label{eq:ordering}
+\end{equation}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Using a chain rule obtained from repeated application of Bayes theorem,
+ we can decompose the probability into a product of 
+\begin_inset Formula $N$
+\end_inset
+
+ conditional probabilities, in the above ordering:
+\begin_inset Formula 
+\begin{align}
+p(\{\phi_{k}\}) & =p(\phi_{1},\phi_{2}\dots\phi_{N})=p(\phi_{1})p(\phi_{2}|\phi_{1})\dots p(\phi_{N}|\phi_{N-1}\dots\phi_{2},\phi_{1})\nonumber \\
+ & =\prod_{k\in[1,N]}p(\phi_{k}|\phi_{<k})\label{eq:autoregressive}
+\end{align}
+
+\end_inset
+
+This is referred to as the 
+\emph on
+autoregressive relation
+\emph default
+.
+ If we can evaluate and sample the conditional probabilities individually,
+ it would would be equivalent to sampling the entire Boltzmann distribution.
+ Exact forms of 
+\begin_inset Formula $p(\phi_{k}|\phi_{<k})$
+\end_inset
+
+ are still analytically intractable starting from 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "eq:boltzmann"
 
 \end_inset
 
 .
- Examining the 
+ So approaches using this principle usually rely on neural networks to optimize
+ the KL-divergence between a variational distribution and the unnormalized
+ Boltzmann distribution.
+ However, we'll see in the following section that locality of the action
+ 
+\begin_inset Formula $S[\phi]$
+\end_inset
+
+ mathematically permits simplifications to the form of 
+\begin_inset Formula $p(\phi_{k}|\phi_{<k})$
+\end_inset
+
+ which can be exploited for designing efficient and interesting neural network
+ architectures.
+ 
+\end_layout
+
+\begin_layout Subsection
+Smaller dependency surfaces due to nearest neighbour interactions
+\end_layout
+
+\begin_layout Standard
+Te 
 \begin_inset Formula $k$
 \end_inset
 
@@ -378,7 +430,7 @@ th conditional probability
 \begin_inset Formula $p(\phi_{k}|\phi_{<k})$
 \end_inset
 
-, its distribution in general depends on 
+ in general depends on 
 \begin_inset Formula $k-1$
 \end_inset
 
@@ -387,29 +439,37 @@ th conditional probability
 \end_inset
 
 .
- This means the complexity of these distributions can explode if the number
- of lattice points 
-\begin_inset Formula $N$
+ However for systems with nearest neighbour interactions in the action 
+\begin_inset Formula $S[\phi]$
 \end_inset
 
- is large, which is typically the case of interest.
- That's the reason deep neural networks have been utilized to model them
- so far.
- However for systems with nearest neighbour interactions, the 
+, the 
 \emph on
-dependency set
+dependency surface
 \emph default
- is significantly smaller, and doesn't even increase with 
+ 
+\begin_inset Formula $\phi_{<k}$
+\end_inset
+
+ is significantly smaller and doesn't even increase with 
 \begin_inset Formula $k$
 \end_inset
 
- after a certain point.
+ after a certain point
+\begin_inset CommandInset citation
+LatexCommand cite
+key "pr_2021"
+literal "false"
+
+\end_inset
+
+.
  
 \end_layout
 
 \begin_layout Standard
 We'll work with the Ising model- the analysis can be generalized to lattice
- field theory and any system with only nearest neighbour interactions.
+ field theory and any system with nearest neighbour interactions.
  Restating the autoregressive relation for the Ising model
 \begin_inset Foot
 status collapsed
@@ -443,8 +503,12 @@ status collapsed
 
 \end_inset
 
-In order to determine the dependency set, let's start backwards from with
- the distribution for the 
+
+\end_layout
+
+\begin_layout Standard
+In order to determine the dependency surface, let's start backwards from
+ with the distribution for the 
 \begin_inset Formula $N$
 \end_inset
 
@@ -562,7 +626,7 @@ p(\phi_{k}|\phi_{<k}) & =\frac{{\displaystyle \sum_{\phi_{N},\dots\phi_{k+1}}}\e
 
 \end_inset
 
-and the dependency set here contains the values of neighbours of 
+and the dependency surface here contains the values of neighbours of 
 \begin_inset Formula $\phi_{>k}$
 \end_inset
 
@@ -571,7 +635,7 @@ and the dependency set here contains the values of neighbours of
 \end_inset
 
 .
- The number of elements in the dependency set is bounded above by 
+ The number of elements in the dependency surface is bounded above by 
 \begin_inset Formula $L^{d-1}$
 \end_inset
 
@@ -579,7 +643,14 @@ and the dependency set here contains the values of neighbours of
 \begin_inset Formula $N/L$
 \end_inset
 
- (due to some geometric constraints, see figure ) which is an 
+ (due to the geometry of our chosen ordering, see figure 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:dep-set"
+
+\end_inset
+
+ for an illustration on a 2D lattice) which is an 
 \begin_inset Quotes eld
 \end_inset
 
@@ -629,12 +700,14 @@ In the 2 dimensional
 \end_inset
 
 .
- Hence the dependency set is only the 
+ Hence the dependency surface is only the 
 \begin_inset Formula $L=10$
 \end_inset
 
  spins coloured black and doesn't contain the grey ones above it.
-\end_layout
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:dep-set"
 
 \end_inset
 
@@ -644,11 +717,212 @@ In the 2 dimensional
 \end_inset
 
 
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+We can draw the same conclusion for scalar lattice field theory by replacing
+ the sums with integrals and including terms like 
+\begin_inset Formula $\phi_{l}^{2}$
+\end_inset
+
+ and 
+\begin_inset Formula $\phi_{l}^{4}$
+\end_inset
+
+ in the above expression.
+ 
+\end_layout
+
+\begin_layout Paragraph
+Dependency surfaces for single and joint conditional distributions
+\end_layout
+
+\begin_layout Standard
+We can also mark the dependency surface of 
+\begin_inset Formula $\phi_{k(\bm{x})}$
+\end_inset
+
+ as a 
+\begin_inset Formula $d-1$
+\end_inset
+
+ dimensional surface constructed parametrically using
+\begin_inset Foot
+status collapsed
+
+\begin_layout Plain Layout
+The reader is urged to spend some time grasping this, perhaps with aid from
+ figure 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:dep-set"
+
+\end_inset
+
+ for the case of 
+\begin_inset Formula $d=2$
+\end_inset
+
+.
+\end_layout
+
+\end_inset
+
+:
+\begin_inset Formula 
+\begin{equation}
+B_{\bm{x}}(y_{1},\dots y_{d-1})=\begin{cases}
+[y_{1},\dots,y_{d-1},x_{d}] & \text{if }k(y_{1},\dots,y_{d-1},x_{d})<k(\bm{x})\\{}
+[y_{1},\dots,y_{d-1},x_{d}-1] & \text{if }k(y_{1},\dots,y_{d-1},x_{d})>k(\bm{x})
+\end{cases}\label{eq:dep_box}
+\end{equation}
+
+\end_inset
+
+We'll call this the 
+\emph on
+dependency surface
+\emph default
+ at 
+\begin_inset Formula $\bm{x}$
+\end_inset
+
+.
+ From 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "eq:ising_k_conditional"
+
+\end_inset
+
+, we can write down the joint conditional probabilities for more than one
+ variable.
+ For example, we can write:
+\begin_inset Formula 
+\begin{align}
+p(\phi_{k},\phi_{k+1}|\phi_{<k}) & =p(\phi_{k+1}|\phi_{<k+1})p(\phi_{k}|\phi_{<k})\nonumber \\
+ & =\frac{{\displaystyle \sum_{\phi_{N},\dots\phi_{k+2}}}\exp\left(-\beta J{\displaystyle \sum_{l=k}^{N}}\left(\phi_{l}{\displaystyle \sum_{\mu}}\phi_{l-\hat{\mu}}\right)\right)}{{\displaystyle \sum_{\phi_{N},\dots\phi_{k}}}\exp\left(-\beta J{\displaystyle \sum_{l=k}^{N}}\left(\phi_{l}{\displaystyle \sum_{\mu}}\phi_{l-\hat{\mu}}\right)\right)}\label{eq:2-conditional}
+\end{align}
+
+\end_inset
+
+Here, if the 
+\begin_inset Formula $x_{d}$
+\end_inset
+
+ is the same for both 
+\begin_inset Formula $k$
+\end_inset
+
+ and 
+\begin_inset Formula $k+1$
+\end_inset
+
+, then the dependency surface for this joint conditional porbability is
+ still the same 
+\begin_inset Formula $B_{\bm{x}}$
+\end_inset
+
+! For a particular choice of 
+\begin_inset Formula $\bm{x}=[1,\dots,1,t]$
+\end_inset
+
+, the dependency surface 
+\begin_inset Formula $B_{\bm{x}}$
+\end_inset
+
+ =
+\begin_inset Formula $[y_{1},\dots,y_{d-1},t-1]$
+\end_inset
+
+ since the case 1 in 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "eq:dep_box"
+
+\end_inset
+
+ never arises.
+ By extension of the logic in 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "eq:2-conditional"
+
+\end_inset
+
+, the dependency of the surface 
+\begin_inset Formula $x_{d}=t$
+\end_inset
+
+ can be inferred from:
+\begin_inset Formula 
+\[
+p(\phi_{k(\bm{x})},\dots\phi_{k(\bm{x})+L^{d-1}-1}|\phi_{<k})=\frac{{\displaystyle \sum_{\phi_{N},\dots\phi_{k+L^{d-1}-1}}}\exp\left(-\beta J{\displaystyle \sum_{l=k}^{N}}\left(\phi_{l}{\displaystyle \sum_{\mu}}\phi_{l-\hat{\mu}}\right)\right)}{{\displaystyle \sum_{\phi_{N},\dots\phi_{k}}}\exp\left(-\beta J{\displaystyle \sum_{l=k}^{N}}\left(\phi_{l}{\displaystyle \sum_{\mu}}\phi_{l-\hat{\mu}}\right)\right)}
+\]
+
+\end_inset
+
+and that's simply 
+\begin_inset Formula $B_{\bm{x}}$
+\end_inset
+
+.
+ In simpler terms, the joint probability of the surface 
+\begin_inset Formula $x_{d}=t$
+\end_inset
+
+ is conditioned only on the surface 
+\begin_inset Formula $x_{d}=t-1$
+\end_inset
+
+: it's similar to propagating a stochastic differential equation!
 \end_layout
 
 \begin_layout Subsection
-Effective size of dependency set depends on the values of hyperparameters
+Effective size of dependency surfaces depends on the values of hyperparameters
  of the system
+\begin_inset CommandInset label
+LatexCommand label
+name "subsec:eff-dep-set"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Even though we've established that the dependency surface of 
+\begin_inset Formula $p(\phi_{k}|\phi_{<k})$
+\end_inset
+
+ is strictly a 
+\begin_inset Formula $d-1$
+\end_inset
+
+ dimensional sub-lattice containing 
+\begin_inset Formula $L^{d-1}$
+\end_inset
+
+ values, here's a mathematical argument about how its effective size of
+ this surface is even smaller depending on the values of certain hyperparameters
+ of our system, particularly in the Ising model.
+ We can heuristically link it with the 
+\emph on
+correlation length
+\emph default
+ of the system given these parameters.
+ The correlation length indeed converges to 
+\begin_inset Formula $L$
+\end_inset
+
+ at the critical point, which is usually our regime of interest.
+ With a similar critical behavior exhibited by lattice field theory systems,
+ there's good reason to believe this property is general.
 \end_layout
 
 \begin_layout Paragraph
@@ -722,7 +996,7 @@ so when
 \end_inset
 
  dependence on the nearest neighbours while the rest are even smaller.
- So assuming that the dependency set for 
+ So assuming that the dependency surface for 
 \begin_inset Formula $p(\phi_{k}|\phi_{<k})$
 \end_inset
 
@@ -783,7 +1057,7 @@ consists only of the nearest neighbours can be a good approximation for
 \begin_inset Formula $\beta$
 \end_inset
 
- grows the effective dependency set to an 
+ grows the effective dependency surface to an 
 \emph on
 upper bound
 \emph default
@@ -810,7 +1084,7 @@ Let's look at the other extreme,
 
  representing ferromagnetic couplings for simplicity.
  For this low temperature limit, it's useful to start with with the so-called
- ground state where all spins in the dependency set within 
+ ground state where all spins in the dependency surface within 
 \begin_inset Formula $\phi_{<k}$
 \end_inset
 
@@ -912,9 +1186,9 @@ reference "eq:low_t_ground_state"
 
 .
  How much does this odds depend on flipping other spins in the dependency
- set? That requires expansions with larger number of terms than the one
- above but we'll eventually see that they don't affect the odds unless we
- crank 
+ surface? That requires expansions with larger number of terms than the
+ one above but we'll eventually see that they don't affect the odds unless
+ we crank 
 \begin_inset Formula $\beta$
 \end_inset
 
@@ -932,8 +1206,8 @@ reference "eq:low_t_ground_state"
 \emph on
 increases
 \emph default
- the effective dependency set from just nearest neighbours to include more
- positions until an upper bound of 
+ the effective dependency surface from just nearest neighbours to include
+ more positions until an upper bound of 
 \begin_inset Formula $N/L$
 \end_inset
 
@@ -956,29 +1230,109 @@ increases
 
 \begin_layout Standard
 We've waved hands in showing a stronger neighbourhood dependency compared
- to farther ones for the conditional probabilities at both high and low
- temperature limits.
- In particular, the effective dependency set is the smallest at both limits,
- and it grows as we move away from them.
- And its not a mystery to anyone who has worked with the Ising model before
- that there's a phase transition or critical point at an intermediate temperatur
-e when 
-\begin_inset Formula $d\geq2$
+ to farther positions for the conditional probabilities at both high and
+ low temperature limits.
+ In particular, the effective dependency surface is the smallest at both
+ limits, and it grows as we move away from them.
+ We can heuristically see how this behaviour is linked to the correlation
+ length of the system which diverges at an intermediate 
+\begin_inset Formula $\beta$
 \end_inset
 
- and the same goes for lattice field theory as well (even though we suspect
- similar high and low temperature expansions would be substantially harder).
- A curious feature about phase transition in the Ising model is there's
- another quantity 
+ known as the critical point.
+ For a finite lattice, the dependency surface would have to depend on 
+\begin_inset Formula $L^{d-1}$
+\end_inset
+
+ as we've deduced before at the critical point.
+\end_layout
+
+\begin_layout Standard
+If this holds true for scalar field theories at the respective critical
+ points which is practically the regime of interest, we've seemingly gained
+ nothing from the possible link between correlation length and the effective
+ dependency size.
+ However, this could still be useful if we're working slightly away from
+ the exact critical point and a large enough system size 
+\begin_inset Formula $L$
+\end_inset
+
+.
+ After all, coupling parameters in quantum field theories indeed depend
+ on the length/energy scale we're looking at, so realistic simulations need
+ not be 
 \emph on
-correlation length
+exactly
 \emph default
- that displays the same behaviour of growing away from both the high and
- low temperature limits.
- The goal of this study is to verify the relationship between correlation
- length and the minimum number of inputs (within the dependency set) required
- for an autoregressive neural network to model the target distribution to
- arbitrary accuracy.
+ at the critical points.
+ A more important takeaway is the stronger dependence of the conditional
+ probabilities on closer positions than farther ones- this holds at any
+ hyperparameter regime.
+\end_layout
+
+\begin_layout Section
+Model definitions
+\end_layout
+
+\begin_layout Subsection
+Single/two variable sampling
+\end_layout
+
+\begin_layout Standard
+While modeling the single variable conditional distributions 
+\begin_inset Formula $p(\phi_{k}|\phi_{<k})$
+\end_inset
+
+, we can take advantage of the fact that dependency surface is a 
+\begin_inset Formula $n-1$
+\end_inset
+
+ dimensional lattice given by 
+\begin_inset Formula $B_{k}$
+\end_inset
+
+ using 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "eq:dep_box"
+
+\end_inset
+
+.
+ The analysis from previous section signals stronger neighbourhood dependence
+ of 
+\begin_inset Formula $p(\phi_{k}|\phi_{<k})$
+\end_inset
+
+ compared to farther positions.
+ This 
+\begin_inset Quotes eld
+\end_inset
+
+local
+\begin_inset Quotes erd
+\end_inset
+
+ dependence is best captured using convolutional neural networks that act
+ on the surface 
+\begin_inset Formula $B_{k}$
+\end_inset
+
+.
+ The output of this network can be parameters of a distribution that can
+ be easily sampled.
+\end_layout
+
+\begin_layout Standard
+\begin_inset CommandInset bibtex
+LatexCommand bibtex
+btprint "btPrintCited"
+bibfiles "ref"
+options "plain"
+
+\end_inset
+
+
 \end_layout
 
 \end_body
