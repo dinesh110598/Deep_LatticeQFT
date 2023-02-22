@@ -841,11 +841,7 @@ This is an oversimplified picture and there are differences like periodic
 \end_inset
 
 .
- 
-\end_layout
-
-\begin_layout Standard
-We can also model the quantity 
+ We can also model the quantity 
 \begin_inset Formula $p\left(\{\phi_{\bm{x}}\}_{x_{d}=t}|\{\phi_{\bm{x}}\}_{x_{d}=t-1}\right)$
 \end_inset
 
@@ -893,7 +889,27 @@ literal "false"
 \end_inset
 
  than farther ones.
- A fascinating outcome of lower dimensional inputs is that in the practically
+ A notion of locality has also been incorporated in flow-based models that
+ directly sample the whole lattice by checkerboard decomposition of the
+ prior samples and using convolutions in coupling layers according to 
+\begin_inset CommandInset citation
+LatexCommand cite
+key "kanwar2021machine"
+literal "false"
+
+\end_inset
+
+.
+ Our proposal of using 
+\begin_inset Formula $d-1$
+\end_inset
+
+ dimensional dependency surface however enforces a stronger and explicit
+ constraint directly based on locality of the action.
+\end_layout
+
+\begin_layout Standard
+A fascinating outcome of lower dimensional inputs is that in the practically
  important case of 
 \begin_inset Formula $d=4$
 \end_inset
