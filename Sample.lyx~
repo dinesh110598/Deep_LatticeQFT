@@ -1019,7 +1019,7 @@ consists only of the nearest neighbours can be a good approximation for
 \end_inset
 
  terms become significant, and some more math digging would reveal terms
- of that order include terms of the forms 
+ of that order include 
 \begin_inset Formula $\beta^{2}J^{2}\phi_{k}^{2}\phi_{k+\hat{\mu}}\phi_{k+\hat{\mu}-\hat{\nu}}$
 \end_inset
 
@@ -1031,7 +1031,19 @@ consists only of the nearest neighbours can be a good approximation for
 \begin_inset Formula $\beta^{2}J^{2}\phi_{k}\phi_{k+\hat{\mu}}\phi_{k+\hat{\mu}+\hat{\nu}}\phi_{k+\hat{\mu}+\hat{\nu}-\hat{\sigma}}$
 \end_inset
 
- that are within 
+(
+\begin_inset Formula $\mu$
+\end_inset
+
+, 
+\begin_inset Formula $\nu$
+\end_inset
+
+, 
+\begin_inset Formula $\sigma$
+\end_inset
+
+ indicate different possible directions) that are within 
 \begin_inset Formula $\phi_{<k}$
 \end_inset
 
@@ -1319,7 +1331,28 @@ local
 \end_inset
 
 .
- The output of 
+ The output of this network can be parameters of a distribution that can
+ be easily sampled.
+\end_layout
+
+\begin_layout Section
+Others
+\end_layout
+
+\begin_layout Subsection
+RealNVP
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\begin{align*}
+\log p_{f}(\phi) & =\log r(f(\phi))+\log\left|\det\frac{\partial f}{\partial\phi}\right|\\
+\log p_{f}(f^{-1}(z)) & =\log r(z)-\sum_{i}\log\left|\det\frac{\partial g_{i}^{-1}}{\partial z}\right|
+\end{align*}
+
+\end_inset
+
+
 \end_layout
 
 \begin_layout Standard
